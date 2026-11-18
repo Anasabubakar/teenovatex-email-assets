@@ -1,0 +1,24 @@
+name: unpack-images
+on:
+  push:
+    paths:
+      - 'bundle.tgz.b64'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode bundle into png/
+        run: |
+          base64 -d bundle.tgz.b64 | tar xz
+          ls -la png
+      - name: Commit PNGs
+        run: |
+          git config user.name 'github-actions'
+          git config user.email 'actions@users.noreply.github.com'
+          git add png
+          git diff --cached --quiet || git commit -m 'Unpack Game Plan PNGs'
+          git push
